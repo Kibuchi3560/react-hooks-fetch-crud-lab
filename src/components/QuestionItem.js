@@ -1,56 +1,20 @@
-import React from 'react';
+import React from "react";
 
-function QuestionItem({ question, questions, setQuestions }) {
+function QuestionItem({ question ,onDeleteClick, onAnswerChange}) {
   const { id, prompt, answers, correctIndex } = question;
 
-  function deleteQuestion(deletedQuestion) {
-    handleDelete(id);
-  }
-
-  function handleDelete(id) {
-    fetch(`http://localhost:4000/questions/${id}`, {
-      method: 'DELETE',
-    })
-      .then((response) => response.json())
-      .then(() => {
-        const remainingQuestions = questions.filter(
-          (question) => question.id !== id
-        );
-        setQuestions(remainingQuestions);
-      });
-  }
-
-  function updateQuestion(updatedQuestion) {
-    const updatedQuestions = questions.map((question) => {
-      if (question.id === updatedQuestion.id) {
-        return question.correctIndex === updatedQuestion.correctIndex;
-      } else {
-        return question;
-      }
-    });
-    setQuestions(updatedQuestions);
-  }
-
-  function handleUpdate(event) {
-    fetch(`http://localhost:4000/questions/${id}`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
-      body: JSON.stringify({
-        correctIndex: event.target.value,
-      }),
-    })
-      .then((response) => response.json())
-      .then((question) => updateQuestion(question));
-    console.log('Fetch successful');
-  }
   const options = answers.map((answer, index) => (
     <option key={index} value={index}>
       {answer}
     </option>
   ));
+  function handleDelete() {
+    onDeleteClick(id);
+  }
+  function handleOnAnswerChange(event) {
+    onAnswerChange(id, parseInt(event.target.value));
+  }
+
 
   return (
     <li>
@@ -58,11 +22,9 @@ function QuestionItem({ question, questions, setQuestions }) {
       <h5>Prompt: {prompt}</h5>
       <label>
         Correct Answer:
-        <select defaultValue={correctIndex} onChange={handleUpdate}>
-          {options}
-        </select>
+        <select defaultValue={correctIndex} onChange={handleOnAnswerChange}>{options}</select>
       </label>
-      <button onClick={deleteQuestion}>Delete Question</button>
+      <button onClick={handleDelete}>Delete Question</button>
     </li>
   );
 }
